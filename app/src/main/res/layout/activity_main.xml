@@ -1,0 +1,27 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <EditText
+        android:id="@+id/et_show"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:lines="5"
+        android:hint="所有聊天信息"
+        android:gravity="center" />
+
+    <EditText
+        android:id="@+id/et_input"
+        android:layout_below="@+id/et_show"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:hint="輸入聊天信息"
+        android:gravity="center" />
+
+    <Button
+        android:id="@+id/bt_send"
+        android:layout_below="@+id/et_input"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:text="發送信息" />
+</RelativeLayout>
