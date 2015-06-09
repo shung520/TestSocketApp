@@ -35,7 +35,7 @@ public class MainActivity extends Activity {
 
         try {
             //定義客戶連接的socket
-            Socket socket = new Socket("140.124.181.190", 30000);
+            Socket socket = new Socket("192.168.1.30", 30000);
             //启動客戶端監聽線程
             new Thread(new ClientThread(socket, handler)).start();
             os = socket.getOutputStream();
