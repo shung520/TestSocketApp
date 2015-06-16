@@ -1,78 +1,84 @@
 package com.example.lab.myapplication;
 
+
 import android.app.Activity;
 import android.os.Bundle;
-import android.os.Handler;
-import android.os.Message;
 import android.util.Log;
 import android.view.View;
+import android.view.View.OnClickListener;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.TextView;
 
 import java.io.IOException;
-import java.io.OutputStream;
-import java.io.UnsupportedEncodingException;
-import java.net.Socket;
-import java.net.UnknownHostException;
+import java.net.DatagramPacket;
+import java.net.DatagramSocket;
+import java.net.InetAddress;
 
-public class MainActivity extends Activity {
-
-    private EditText et_show,et_input;
-    private Button bt_send;
-    private OutputStream os;
-    private Handler handler;
+public class MainActivity extends Activity
+{
+    TextView textResponse;
+    EditText editTextAddress, editTextPort;
+    Button buttonConnect, buttonClear;
+    String str = "Hello";
+    String modifiedSentence;
+    byte[] send_data = new byte[1024];
+    byte[] receiveData = new byte[1024];
 
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
+    protected void onCreate(Bundle savedInstanceState)
+    {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        Log.d("Test", "Test");
+        buttonConnect = (Button) findViewById(R.id.connect);
 
-        et_input = (EditText) this.findViewById(R.id.et_input);
-        et_show = (EditText) this.findViewById(R.id.et_show);
-        bt_send = (Button) this.findViewById(R.id.bt_send);
-
-
-        try {
-            //定義客戶連接的socket
-            Socket socket = new Socket("192.168.1.30", 30000);
-            //启動客戶端監聽線程
-            new Thread(new ClientThread(socket, handler)).start();
-            os = socket.getOutputStream();
-        } catch (UnknownHostException e) {
-            e.printStackTrace();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-
-
-        bt_send.setOnClickListener(new View.OnClickListener() {
+        buttonConnect.setOnClickListener(new OnClickListener()
+        {
             @Override
-            public void onClick(View v) {
-                try {
-                    //得到輸入框中的內容，寫入到輸入流中
-                    os.write((et_input.getText().toString()+"\r\n").getBytes("utf-8"));
-                    et_input.setText("");
-                } catch (UnsupportedEncodingException e) {
-                    // TODO Auto-generated catch block
-                    e.printStackTrace();
-                } catch (IOException e) {
-                    // TODO Auto-generated catch block
-                    e.printStackTrace();
-                }
+            public void onClick(View v)
+            {
+                new Thread(new Runnable()
+                {
+                    @Override
+                    public void run()
+                    {
+                        try
+                        {
+                            client();
+                        }
+                        catch (IOException e)
+                        {
+                            e.printStackTrace();
+                        }
+                    }
+                }).start();
             }
         });
+    }
 
+    public void client() throws IOException
+    {
+        DatagramSocket client_socket = new DatagramSocket(30000);
+        InetAddress IPAddress = InetAddress.getByName("140.124.181.190");
 
-        handler = new Handler(){
-            @Override
-            public void handleMessage(Message msg) {
-                super.handleMessage(msg);
-                if(msg.what == 1){
-                    //得到服務器返回的信息
-                    et_show.append("\n"+msg.obj.toString());
-                }
-            }
-        };
+        send_data = str.getBytes();
+
+        DatagramPacket send_packet = new DatagramPacket(send_data, str.length(), IPAddress, 30000);
+        client_socket.send(send_packet);
+
+        DatagramPacket receivePacket = new DatagramPacket(receiveData, receiveData.length);
+        client_socket.receive(receivePacket);
+        modifiedSentence = new String(receivePacket.getData());
+        System.out.println("FROM SERVER:" + modifiedSentence);
+        if (modifiedSentence.charAt(2) == '%')
+        {
+            Log.d("(modifiedSentence.su", (modifiedSentence.substring(0, 3)));
+        }
+        else
+        {
+            Log.d("modifiedSentence", modifiedSentence);
+        }
+        modifiedSentence = null;
+        client_socket.close();
     }
 }
